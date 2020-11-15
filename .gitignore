@@ -24,3 +24,6 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Server config folder with sensitive information
+/server/config
