@@ -25,6 +25,7 @@
               text
               small
               id="registerBtn"
+              :to="{ name: 'Register' }"
             >Register</v-btn>
 
             <v-btn

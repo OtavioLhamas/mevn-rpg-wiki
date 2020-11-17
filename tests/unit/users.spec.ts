@@ -5,6 +5,8 @@ import express from 'express'
 import mongoose, { Mongoose } from 'mongoose'
 import request from 'supertest'
 import Vuetify from 'vuetify'
+import axios from 'axios'
+import { UserInterface } from '@/../server/models/users'
 
 /*************************************
  * All user registration related tests
@@ -62,5 +64,47 @@ describe('User registration API endpoint', () => {
     expect(user.password).not.toEqual('p455w0rd')
 
     done()
+  })
+})
+
+/*********************************
+ * User registration Vue component
+ *********************************/
+describe('User registration Vue component', () => {
+  const localVue = createLocalVue()
+  let vuetify: Vuetify
+  let wrapper: Wrapper<Vue>
+
+  jest.mock('axios', () => ({
+    post: (_url: string, _body: Record<string, string>) => new Promise((resolve, reject) => {
+      if (!_body.name) {
+        return reject
+      }
+    })
+  }))
+
+  beforeEach(() => {
+    vuetify = new Vuetify()
+
+    const elem = document.createElement('div')
+    if (document.body) {
+      document.body.appendChild(elem)
+    }
+    wrapper = mount(Register, {
+      localVue,
+      vuetify,
+      attachTo: elem
+    })
+  })
+
+  afterEach(() => {
+    wrapper.destroy()
+  })
+
+  it('should have a valid registration form', async () => {
+    await wrapper.find('button#submitBtn').trigger('click')
+
+    expect(axios.post).toHaveBeenCalledTimes(1)
+    expect(axios.post).toHaveBeenCalledWith('users/register')
   })
 })

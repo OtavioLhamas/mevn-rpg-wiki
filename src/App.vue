@@ -4,6 +4,13 @@
 
     <v-main>
       <HelloWorld msg="Welcome to Vuetify" />
+
+      <v-container fluid fixed>
+        <div id="app">
+          <router-view />
+        </div>
+      </v-container>
+
     </v-main>
   </v-app>
 </template>

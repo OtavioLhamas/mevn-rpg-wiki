@@ -4,7 +4,8 @@ import { Document, Model, model, Schema } from 'mongoose'
 /**
  * Hash the user's password
  *
- * @param {string} param0 The password to be hashed
+ * @param {string} The password to be hashed
+ * @returns {string} The hashed password
  */
 export async function hashPassword (password: string) {
   const salt: string = await bcryptjs.genSalt(12)
@@ -13,13 +14,16 @@ export async function hashPassword (password: string) {
 }
 
 export interface UserInterface {
-  name: Record<string, string>;
+  name: {
+    firstName: string;
+    lastName: string;
+  };
   username: string;
   email: string;
   password: string;
 }
 
-interface UserDocument extends UserInterface, Document {}
+interface UserDocument extends UserInterface, Document { }
 
 export const UserSchema: Schema = new Schema({
   name: {
