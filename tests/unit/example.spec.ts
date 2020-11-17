@@ -1,6 +1,9 @@
+import HelloWorld from '@/components/hello-world.vue'
 import { createLocalVue, mount } from '@vue/test-utils'
-import HelloWorld from '@/components/HelloWorld.vue'
+import express from 'express'
+import request from 'supertest'
 import Vuetify from 'vuetify'
+import { App } from '@/../server/setup'
 
 describe('HelloWorld.vue', () => {
   const localVue = createLocalVue()
@@ -20,5 +23,21 @@ describe('HelloWorld.vue', () => {
       }
     })
     expect(wrapper.text()).toMatch(msg)
+  })
+})
+
+describe('GET /', () => {
+  const app = new App()
+  let express: express.Application
+
+  beforeEach(async () => {
+    express = await app.expressSetup()
+  })
+
+  it('Home API Request', async () => {
+    // When App is instantiated the constructor runs mongoSetup(), trying to mount MongoDB after the tests are done
+    const result = await request(express).get('/')
+    expect(result.body.title).toEqual('API Initialized')
+    expect(result.status).toEqual(200)
   })
 })

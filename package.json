@@ -20,6 +20,7 @@
     "@types/node": "^14.14.7",
     "@types/passport": "^1.0.4",
     "@types/passport-jwt": "^3.0.3",
+    "axios": "^0.21.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "core-js": "^3.6.5",
@@ -38,7 +39,9 @@
     "vuex": "^3.4.0"
   },
   "devDependencies": {
+    "@shelf/jest-mongodb": "^1.2.3",
     "@types/jest": "^24.0.19",
+    "@types/supertest": "^2.0.10",
     "@typescript-eslint/eslint-plugin": "^2.33.0",
     "@typescript-eslint/parser": "^2.33.0",
     "@vue/cli-plugin-babel": "~4.5.0",
@@ -61,6 +64,7 @@
     "lint-staged": "^9.5.0",
     "sass": "^1.19.0",
     "sass-loader": "^8.0.0",
+    "supertest": "^6.0.1",
     "typescript": "~3.9.3",
     "vue-cli-plugin-vuetify": "~2.0.7",
     "vue-template-compiler": "^2.6.11",

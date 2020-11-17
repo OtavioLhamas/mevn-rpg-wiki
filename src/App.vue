@@ -10,7 +10,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import HelloWorld from '@/components/HelloWorld.vue'
+import HelloWorld from '@/components/hello-world.vue'
 import NavHeader from '@/components/nav-header.vue'
 
 export default Vue.extend({

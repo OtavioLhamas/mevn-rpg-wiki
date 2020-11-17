@@ -1,11 +1,16 @@
 import { App } from './setup'
 
-const app = new App().express
-const port = process.env.API_PORT || 8081
+async function startServer () {
+  const app = new App()
+  const express = await app.expressSetup()
 
-app.listen(port, () => {
-  console.log(`Server is listening on http://localhost:${port} on ${app.get('env')} mode`)
-})
+  const mongo = await app.mongoSetup()
 
-// Exports our app for testing
-export default app
+  const port = process.env.API_PORT || 8081
+
+  express.listen(port, () => {
+    console.log(`Server is listening on http://localhost:${port} on ${express.get('env')} mode`)
+  })
+}
+
+const app = startServer()

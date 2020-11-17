@@ -12,25 +12,12 @@ import { Home } from './routes/home'
 import { UserController } from './controllers/users'
 
 export class App {
-  public express: express.Application
   public mongoUrl = 'mongodb://localhost/rpg-wiki'
 
   public routeHome: Home = new Home()
   public usersControler: UserController = new UserController()
 
-  constructor () {
-    this.passportSetup()
-
-    this.express = express()
-    this.expressSetup()
-
-    this.routeHome.routes(this.express)
-    this.usersControler.routes(this.express)
-
-    this.mongoSetup()
-  }
-
-  private passportSetup (): void {
+  public async passportSetup (): Promise<void> {
     // Prepares variables that will be needed later on
     const ExtractJwt = passportJwt.ExtractJwt
     const JwtStrategy = passportJwt.Strategy
@@ -54,26 +41,35 @@ export class App {
     }))
   }
 
-  private expressSetup (): void {
-    this.express.use(morgan('combined'))
+  public async expressSetup (): Promise<express.Application> {
+    await this.passportSetup()
 
-    this.express.use(bodyParser.json())
-    this.express.use(bodyParser.urlencoded({ extended: false }))
+    const e = express()
+    e.use(morgan('combined'))
 
-    this.express.use(cors())
+    e.use(bodyParser.json())
+    e.use(bodyParser.urlencoded({ extended: false }))
 
-    this.express.use(passport.initialize())
+    e.use(cors())
+
+    e.use(passport.initialize())
+
+    this.routeHome.routes(e)
+    this.usersControler.routes(e)
+
+    return e
   }
 
-  private mongoSetup (): void {
+  public async mongoSetup (): Promise<void> {
     mongoose.connect(this.mongoUrl, {
       useNewUrlParser: true,
       useUnifiedTopology: true
-    }).then(() => {
-      console.log('Connection to MongoDB stablished')
     }, (err) => {
-      console.error('MongoDB starting error:', err.stack)
-      process.exit(1)
+      if (err) {
+        console.log(err.message)
+      } else {
+        console.log('Connection to MongoDB stablished')
+      }
     })
   }
 }

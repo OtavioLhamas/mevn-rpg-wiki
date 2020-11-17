@@ -7,7 +7,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import HelloWorld from '@/components/HelloWorld.vue' // @ is an alias to /src
+import HelloWorld from '@/components/hello-world.vue' // @ is an alias to /src
 
 export default Vue.extend({
   name: 'Home',
