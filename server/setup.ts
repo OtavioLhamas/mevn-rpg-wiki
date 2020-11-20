@@ -1,7 +1,6 @@
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import express from 'express'
-import fs from 'fs'
 import mongoose from 'mongoose'
 import morgan from 'morgan'
 import passport from 'passport'
@@ -62,6 +61,7 @@ export class App {
 
   public async mongoSetup (): Promise<void> {
     mongoose.connect(this.mongoUrl, {
+      useCreateIndex: true,
       useNewUrlParser: true,
       useUnifiedTopology: true
     }, (err) => {

@@ -6,7 +6,7 @@ export class UserController {
    * routes
    */
   public routes (app: express.Application): void {
-    app.post('/users/register', (req: Request, res: Response) => {
+    app.post('/users/register', async (req: Request, res: Response) => {
       const newUser = new UserModel({
         name: {
           firstName: req.body.name.firstName,
@@ -18,8 +18,11 @@ export class UserController {
       })
 
       newUser.save((error, user) => {
-        if (error) { console.log(error) }
-        res.status(200).send({ user })
+        if (error) {
+          res.status(409).send({ error })
+        } else {
+          res.status(200).send({ user })
+        }
       })
     })
   }

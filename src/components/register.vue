@@ -5,12 +5,14 @@
       v-model="firstName"
       :rules="nameRules"
       required
+      id="firstNameInput"
     ></v-text-field>
     <v-text-field
       label="Last Name"
       v-model="lastName"
       :rules="nameRules"
       required
+      id="lastNameInput"
     ></v-text-field>
     <v-text-field
       label="E-mail"
@@ -18,12 +20,14 @@
       :rules="emailRules"
       required
       type="email"
+      id="emailInput"
     ></v-text-field>
     <v-text-field
       label="Username"
       v-model="username"
       :rules="usernameRules"
       required
+      id="usernameInput"
     ></v-text-field>
     <v-text-field
       label="Password"
@@ -32,6 +36,7 @@
       :rules="passwordRules"
       required
       type="password"
+      id="passwordInput"
     ></v-text-field>
     <v-text-field
       name="input-7-1"
@@ -41,11 +46,12 @@
       :rules="confirmPasswordRules"
       required
       type="password"
+      id="confirmPasswordInput"
     ></v-text-field>
 
     <v-btn
       @click="submit"
-      :disabled="!valid"
+      :disabled="(!valid || status.registering)"
       id="submitBtn"
     >
       Submit
@@ -56,7 +62,7 @@
 
 <script>
 import Vue from 'vue'
-import axios from 'axios'
+import { mapState, mapActions } from 'vuex'
 
 export default Vue.extend({
   name: 'Register',
@@ -95,10 +101,15 @@ export default Vue.extend({
     ]
   }),
 
+  computed: {
+    ...mapState('account', ['status'])
+  },
+
   methods: {
+    ...mapActions('account', ['register']),
     async submit () {
       if (this.$refs.form.validate() && this.password === this.confirmPassword) {
-        return axios.post('http://localhost:8081/users/register', {
+        this.register({
           name: {
             firstName: this.firstName,
             lastName: this.lastName
@@ -106,10 +117,6 @@ export default Vue.extend({
           email: this.email,
           username: this.username,
           password: this.password
-        }, {
-          headers: {
-            'Content-Type': 'application/json'
-          }
         })
       }
     },

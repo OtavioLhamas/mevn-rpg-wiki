@@ -1,39 +1,101 @@
 import { App } from '@/../server/setup'
 import Register from '@/components/register.vue'
-import { createLocalVue, mount, Wrapper } from '@vue/test-utils'
+import { createLocalVue, mount } from '@vue/test-utils'
 import express from 'express'
 import mongoose, { Mongoose } from 'mongoose'
 import request from 'supertest'
 import Vuetify from 'vuetify'
-import axios from 'axios'
-import { UserInterface } from '@/../server/models/users'
+import Vuex, { ActionTree, Store } from 'vuex'
+
+/*
+ * Initial test application setup
+ */
+const app = new App()
+let expressApp: express.Application
+
+// Connects to the temporary test database
+const dbName = 'test'
+let dbConnect: Mongoose
+let dbConnection: mongoose.Connection
+
+// Creates a local Vue instance
+let vuetify: Vuetify
+let div: HTMLDivElement
+const localVue = createLocalVue()
+let state: any
+let actions: ActionTree<any, any>
+let store: Store<any>
+localVue.use(Vuex)
+
+// Mocks axios functions
+jest.mock('axios', () => ({
+  post: (_url: string, _body: Record<string, string>) => new Promise((resolve, reject) => {
+    // A list of fake invalid usernames
+    const invalidUsername = ['Bob_Smith', 'NoobMaster69']
+    // A list of fake invalid emails
+    const invalidEmail = ['bob_smith@mail.com', 'noobmaster69@mail.com']
+    if (_body.username in invalidUsername) {
+      return reject(new Error(`Username ${_body.username} is already taken`))
+    }
+
+    if (_body.email in invalidEmail) {
+      return reject(new Error('This email already has an account'))
+    }
+
+    resolve({
+      data: _body,
+      status: 200,
+      statusText: 'OK'
+    })
+  })
+}))
 
 /*************************************
  * All user registration related tests
  *************************************/
 describe('User registration API endpoint', () => {
-  const app = new App()
-  let express: express.Application
-
-  const dbName = 'test'
-  let dbConnect: Mongoose
-  let dbConnection: mongoose.Connection
-
   beforeAll(async () => {
-    // Connects to the temporary test database
     dbConnect = await mongoose.connect(`mongodb://localhost/${dbName}`, {
+      useCreateIndex: true,
       useNewUrlParser: true,
       useUnifiedTopology: true
     })
-
     dbConnection = dbConnect.connection
   })
 
   beforeEach(async () => {
-    express = await app.expressSetup()
+    expressApp = await app.expressSetup()
+    vuetify = new Vuetify()
+    div = document.createElement('div')
+
+    if (document.body) {
+      document.body.appendChild(div)
+    }
+
+    state = {
+      status: {
+        loggedIn: false,
+        registering: false
+      },
+      user: null
+    }
+
+    actions = {
+      register: jest.fn()
+    }
+
+    store = new Vuex.Store({
+      modules: {
+        account: {
+          namespaced: true,
+          state,
+          actions
+        }
+      }
+    })
   })
 
-  afterEach(async () => {
+  afterAll(async () => {
     // Clear all collections in the database after tests are done
     const collections = Object.keys(dbConnection.collections)
     collections.forEach(async (collectionName: string) => {
@@ -43,68 +105,55 @@ describe('User registration API endpoint', () => {
   })
 
   it('POST /users/register', async (done) => {
-    const result = await request(express).post('/users/register').send({
+    const user = {
       name: {
         firstName: 'John',
         lastName: 'Doe'
       },
-      username: 'JohnDoe',
-      email: 'john.doe@mail.com',
+      username: 'John_Doe',
+      email: 'john_doe@mail.com',
       password: 'p455w0rd'
-    })
+    }
+
+    const result = await request(expressApp).post('/users/register').send(user)
 
     expect(!result.error)
     // Makes sure it returns a user
     expect(result.text).toMatch('user')
     expect(result.status).toEqual(200)
 
-    const user = await dbConnection.collection('users').findOne({ email: 'john.doe@mail.com' })
-    expect(user)
+    const findUser = await dbConnection.collection('users').findOne({ email: user.email })
+    expect(findUser)
     // The password should be hashed
-    expect(user.password).not.toEqual('p455w0rd')
+    expect(findUser.password).not.toEqual('p455w0rd')
 
     done()
   })
-})
 
-/*********************************
- * User registration Vue component
- *********************************/
-describe('User registration Vue component', () => {
-  const localVue = createLocalVue()
-  let vuetify: Vuetify
-  let wrapper: Wrapper<Vue>
-
-  jest.mock('axios', () => ({
-    post: (_url: string, _body: Record<string, string>) => new Promise((resolve, reject) => {
-      if (!_body.name) {
-        return reject
-      }
-    })
-  }))
-
-  beforeEach(() => {
-    vuetify = new Vuetify()
-
-    const elem = document.createElement('div')
-    if (document.body) {
-      document.body.appendChild(elem)
-    }
-    wrapper = mount(Register, {
+  it('Vue component should have a valid registration form', async () => {
+    const wrapper = mount(Register, {
+      store,
       localVue,
       vuetify,
-      attachTo: elem
+      attachTo: div
     })
-  })
 
-  afterEach(() => {
-    wrapper.destroy()
-  })
+    const firstName = wrapper.find('input#firstNameInput')
+    const lastName = wrapper.find('input#lastNameInput')
+    const email = wrapper.find('input#emailInput')
+    const username = wrapper.find('input#usernameInput')
+    const password = wrapper.find('input#passwordInput')
+    const confirmPassword = wrapper.find('input#confirmPasswordInput')
 
-  it('should have a valid registration form', async () => {
+    firstName.setValue('Bob')
+    lastName.setValue('Smith')
+    email.setValue('bob_smith@mail.com')
+    username.setValue('Bob_Smith')
+    password.setValue('secretPassword')
+    confirmPassword.setValue('secretPassword')
+
     await wrapper.find('button#submitBtn').trigger('click')
 
-    expect(axios.post).toHaveBeenCalledTimes(1)
-    expect(axios.post).toHaveBeenCalledWith('users/register')
+    expect(actions.register).toHaveBeenCalled()
   })
 })
