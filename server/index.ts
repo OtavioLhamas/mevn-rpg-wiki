@@ -1,5 +1,8 @@
 import { App } from './setup'
 
+/**
+ * Starts the express server with the proper setup
+ */
 async function startServer () {
   const app = new App()
   const express = await app.expressSetup()

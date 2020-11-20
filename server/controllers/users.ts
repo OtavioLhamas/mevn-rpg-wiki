@@ -3,7 +3,9 @@ import express, { Request, Response } from 'express'
 
 export class UserController {
   /**
-   * routes
+   * Sets up the user routes
+   *
+   * @param {express.Application} The express application that the routes will be applied on
    */
   public routes (app: express.Application): void {
     app.post('/users/register', async (req: Request, res: Response) => {

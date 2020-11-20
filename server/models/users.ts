@@ -67,7 +67,11 @@ export const UserSchema: Schema = new Schema({
     }
   })
 
-UserSchema.methods.getTableName = function () {
+/**
+ * Gets the collection name for this model
+ * @returns {string} Collection name
+ */
+UserSchema.methods.getTableName = function (): string {
   return 'users'
 }
 

@@ -13,6 +13,10 @@ const state = () => ({
 })
 
 const actions = {
+  /**
+   * Registers a new user on the database
+   * @param {UserInterface} User object
+   */
   register: ({ commit }: any, user: UserInterface) => {
     commit('registerRequest', user)
 
@@ -42,6 +46,7 @@ const actions = {
 }
 
 const mutations = {
+  // Disables the submit button while awaiting for the registration
   registerRequest: (state: any) => {
     state.status.registering = true
   },

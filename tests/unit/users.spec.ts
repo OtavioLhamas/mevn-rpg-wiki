@@ -18,7 +18,7 @@ const dbName = 'test'
 let dbConnect: Mongoose
 let dbConnection: mongoose.Connection
 
-// Creates a local Vue instance
+// Creates and configures a local Vue instance
 let vuetify: Vuetify
 let div: HTMLDivElement
 const localVue = createLocalVue()
@@ -34,10 +34,13 @@ jest.mock('axios', () => ({
     const invalidUsername = ['Bob_Smith', 'NoobMaster69']
     // A list of fake invalid emails
     const invalidEmail = ['bob_smith@mail.com', 'noobmaster69@mail.com']
+
+    // If the provided username is invalid, return an error
     if (_body.username in invalidUsername) {
       return reject(new Error(`Username ${_body.username} is already taken`))
     }
 
+    // If the provided email is invalid, return an error
     if (_body.email in invalidEmail) {
       return reject(new Error('This email already has an account'))
     }
@@ -53,7 +56,7 @@ jest.mock('axios', () => ({
 /*************************************
  * All user registration related tests
  *************************************/
-describe('User registration API endpoint', () => {
+describe('User Registration', () => {
   beforeAll(async () => {
     dbConnect = await mongoose.connect(`mongodb://localhost/${dbName}`, {
       useCreateIndex: true,
@@ -131,6 +134,7 @@ describe('User registration API endpoint', () => {
   })
 
   it('Vue component should have a valid registration form', async () => {
+    // Mounts the component
     const wrapper = mount(Register, {
       store,
       localVue,
@@ -138,13 +142,14 @@ describe('User registration API endpoint', () => {
       attachTo: div
     })
 
+    // Get the elements that need to be filled
     const firstName = wrapper.find('input#firstNameInput')
     const lastName = wrapper.find('input#lastNameInput')
     const email = wrapper.find('input#emailInput')
     const username = wrapper.find('input#usernameInput')
     const password = wrapper.find('input#passwordInput')
     const confirmPassword = wrapper.find('input#confirmPasswordInput')
-
+    // Fill those elements with valid user info
     firstName.setValue('Bob')
     lastName.setValue('Smith')
     email.setValue('bob_smith@mail.com')

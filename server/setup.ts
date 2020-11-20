@@ -16,8 +16,10 @@ export class App {
   public routeHome: Home = new Home()
   public usersControler: UserController = new UserController()
 
+  /**
+   * Sets up the passport package
+   */
   public async passportSetup (): Promise<void> {
-    // Prepares variables that will be needed later on
     const ExtractJwt = passportJwt.ExtractJwt
     const JwtStrategy = passportJwt.Strategy
     const jwtOptions = {
@@ -40,6 +42,9 @@ export class App {
     }))
   }
 
+  /**
+   * Sets up the express app
+   */
   public async expressSetup (): Promise<express.Application> {
     await this.passportSetup()
 
@@ -59,6 +64,9 @@ export class App {
     return e
   }
 
+  /**
+   * Sets up MongoDB
+   */
   public async mongoSetup (): Promise<void> {
     mongoose.connect(this.mongoUrl, {
       useCreateIndex: true,

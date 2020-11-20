@@ -68,15 +68,20 @@ export default Vue.extend({
   name: 'Register',
 
   data: () => ({
+    // Starts the component with a valid form to enable the submit button
     valid: true,
+    // Empty input fields value
     firstName: '',
     lastName: '',
-    nameRules: [v => !!v || 'Name is required'],
     email: '',
+    username: '',
+    password: '',
+    confirmPassword: '',
+    // Validation rules
+    nameRules: [v => !!v || 'Name is required'],
     emailRules: [
       v => !!v || 'E-mail is required',
       v => /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(v) || 'E-mail must be valid'],
-    username: '',
     usernameRules: [
       v => !!v || 'Username is required',
       v => v.length <= 20 || 'Username must be less than 20 characters',
@@ -90,24 +95,25 @@ export default Vue.extend({
        */
       v => /^(?=.{8,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/.test(v) || 'Invalid username. Number of characters must be between 8 to 20. Only contains alphanumeric characters, underscore and dot. Underscore and dot can\'t be at the end or start of a username. Underscore and dot can\'t be next to each other. Underscore or dot can\'t be used multiple times in a row'
     ],
-    password: '',
     passwordRules: [
       v => !!v || 'Password is required',
       v => v.length >= 8 || 'Password must be at least 8 characters'
     ],
-    confirmPassword: '',
     confirmPasswordRules: [
       v => !!v || 'Confirm your password'
     ]
   }),
 
   computed: {
-    ...mapState('account', ['status'])
+    // Maps the state from the account module store
+    ...mapState('account', ['status', 'user'])
   },
 
   methods: {
+    // Maps the actions from the account module store
     ...mapActions('account', ['register']),
     async submit () {
+      // Validates the form and makes sure the password confirmation is the same
       if (this.$refs.form.validate() && this.password === this.confirmPassword) {
         this.register({
           name: {
